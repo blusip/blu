@@ -1,0 +1,24 @@
+go 1.19
+
+use (
+	.
+	./api/v1/grpc/client
+	./api/v1/grpc/handlers
+	./api/v1/grpc/server
+	./api/v1/rest/client
+	./api/v1/rest/handlers
+	./api/v1/rest/server
+	./pkg/b2b
+	./pkg/gateway
+	./pkg/nattravesal
+	./pkg/parser
+	./pkg/proxy
+	./pkg/redirector
+	./pkg/register
+	./pkg/signaling
+	./pkg/streams
+	./pkg/ua/client
+	./pkg/ua/server
+	./pkg/uri
+	./pkg/vault
+)
