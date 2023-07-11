@@ -1,5 +1,53 @@
 package sip
 
+import "github.com/gokiki/sip-server/internal/header"
+
+type URI struct {
+	Scheme string
+	Name   string
+	Host   string
+	Port   int
+	Params header.Headers
+}
+
+type Protocol string
+
+func (p Protocol) Scheme() string {
+	for i := range p {
+		if p[i] == '/' {
+			return string(p[:i])
+		}
+	}
+
+	return string(p)
+}
+
+func (p Protocol) Version() string {
+	for i := range p {
+		if p[i] == '/' {
+			return string(p[i+1:])
+		}
+	}
+
+	return ""
+}
+
 type Request struct {
-	// TODO: add sip request fields
+	Method string
+	URI    URI
+
+	Proto         Protocol
+	Headers       header.Headers
+	ContentLength int
+	Body          []byte
+}
+
+func NewRequest() *Request {
+	return &Request{
+		Headers: header.NewHeaders(),
+	}
+}
+
+func (r Request) HasBody() bool {
+	return r.ContentLength > 0
 }
