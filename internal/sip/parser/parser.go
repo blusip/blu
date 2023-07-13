@@ -118,7 +118,7 @@ method:
 			if !p.requestLineArena.Append(data[:i]...) {
 				// FIXME: sometimes this may be caused by misconfiguration. Error message
 				//  must be a bit more informative, but how?
-				return true, status.ErrNotImplemented
+				return true, status.ErrMethodNotImplemented
 			}
 			p.request.Method = uf.B2S(p.requestLineArena.Finish())
 			data = data[i+1:]
@@ -135,7 +135,7 @@ method:
 	}
 
 	if !p.requestLineArena.Append(data...) {
-		return true, status.ErrNotImplemented
+		return true, status.ErrMethodNotImplemented
 	}
 
 	return false, nil
