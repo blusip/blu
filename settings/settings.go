@@ -2,9 +2,8 @@ package settings
 
 type (
 	RequestLine struct {
-		MaxLength       int
-		BufferPreAlloc  int
-		MaxMethodLength int
+		MaxLength      int
+		BufferPreAlloc int
 	}
 
 	Headers struct {
