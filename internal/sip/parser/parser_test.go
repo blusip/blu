@@ -22,7 +22,7 @@ func newParser(request *sip.Request) *Parser {
 func TestParser(t *testing.T) {
 	t.Run("default request", func(t *testing.T) {
 		data := "" +
-			"INVITE sip:bob.smith:fancyPassword@biloxi.com:80;param=value;param2=value2 SIP/2.0\r\n" +
+			"INVITE sip:bob%20smith:fancy%20password@biloxi.com:80;par+am=value;par%20am2=val%20ue2 SIP/2.0\r\n" +
 			"Via: SIP/2.0/UDP pc33.atlanta.com;branch=z9hG4bK776asdhds\r\n" +
 			"Max-Forwards: 70\r\n" +
 			"To: Bob <sip:bob@biloxi.com>\r\n" +
@@ -41,16 +41,16 @@ func TestParser(t *testing.T) {
 		require.True(t, done, "given the whole request at once, parser is expected to be done")
 		require.Equal(t, "INVITE", request.Method)
 		require.Equal(t, "sip", request.URI.Scheme)
-		require.Equal(t, "bob.smith", request.URI.User)
-		require.Equal(t, "fancyPassword", request.URI.Password)
+		require.Equal(t, "bob smith", request.URI.User)
+		require.Equal(t, "fancy password", request.URI.Password)
 		require.Equal(t, "biloxi.com", request.URI.Host)
 		require.Equal(t, 80, request.URI.Port)
-		value, found := request.URI.Params.Get("param")
-		require.Truef(t, found, "wanted \"param\" parameter")
+		value, found := request.URI.Params.Get("par am")
+		require.Truef(t, found, "wanted \"par am\" parameter")
 		require.Equal(t, "value", value)
-		value, found = request.URI.Params.Get("param2")
-		require.Truef(t, found, "wanted \"param2\" parameter")
-		require.Equal(t, "value2", value)
+		value, found = request.URI.Params.Get("par am2")
+		require.Truef(t, found, "wanted \"par am2\" parameter")
+		require.Equal(t, "val ue2", value)
 		require.Equal(t, "SIP", request.Proto.Scheme())
 		require.Equal(t, "2.0", request.Proto.Version())
 		require.Equal(t, 13, request.ContentLength)
