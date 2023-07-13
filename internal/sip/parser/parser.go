@@ -2,6 +2,7 @@ package parser
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/gokiki/sip-server/internal/sip"
 	"github.com/gokiki/sip-server/internal/sip/status"
@@ -17,6 +18,7 @@ type Parser struct {
 	request           *sip.Request
 	headerKey         string
 	requestLineArena  arena.Arena[byte]
+	tempParamKey      string
 	headersValuesPool pool.ObjectPool[[]string]
 	headerKeyArena    arena.Arena[byte]
 	headerValueArena  arena.Arena[byte]
@@ -53,18 +55,36 @@ func (p *Parser) Parse(data []byte) (done bool, err error) {
 	switch p.state {
 	case eMethod:
 		goto method
-	case eUri:
-		goto uri
-	case eUriDecode1Char:
-		goto uriDecode1Char
-	case eUriDecode2Char:
-		goto uriDecode2Char
-	case eParams:
-		goto params
-	case eParamsDecode1Char:
-		goto queryDecode1Char
-	case eParamsDecode2Char:
-		goto queryDecode2Char
+	case eUriScheme:
+		goto uriScheme
+	case eUriUser:
+		goto uriUser
+	case eUriUserD1:
+		goto uriUserD1
+	case eUriUserD2:
+		goto uriUserD2
+	case eUriPassword:
+		goto uriPassword
+	case eUriPasswordD1:
+		goto uriPasswordD1
+	case eUriPasswordD2:
+		goto uriPasswordD2
+	case eUriHost:
+		goto uriHost
+	case eUriPort:
+		goto uriPort
+	case eParamsKey:
+		goto paramsKey
+	case eParamsKeyD1:
+		goto paramsKeyD1
+	case eParamsKeyD2:
+		goto paramsKeyD2
+	case eParamsValue:
+		goto paramsValue
+	case eParamsValueD1:
+		goto paramsValueD1
+	case eParamsValueD2:
+		goto paramsValueD2
 	case eProto:
 		goto proto
 	case eS:
@@ -111,80 +131,59 @@ method:
 		case '\r', '\n':
 			return true, status.ErrBadRequest
 		case ' ':
-			if p.counter == 0 {
-				return true, status.ErrBadRequest
-			}
-
-			if !p.requestLineArena.Append(data[:i]...) {
-				// FIXME: sometimes this may be caused by misconfiguration. Error message
-				//  must be a bit more informative, but how?
-				return true, status.ErrMethodNotImplemented
-			}
 			p.request.Method = uf.B2S(p.requestLineArena.Finish())
 			data = data[i+1:]
 			p.counter = 0
-			p.state = eUri
-			goto uri
+			p.state = eUriScheme
+			goto uriScheme
 		default:
-			p.counter++
-
-			if p.counter > p.settings.RequestLine.MaxMethodLength {
-				return true, status.ErrBadRequest
-			}
-		}
-	}
-
-	if !p.requestLineArena.Append(data...) {
-		return true, status.ErrMethodNotImplemented
-	}
-
-	return false, nil
-
-uri:
-	// FIXME: parse here not like http path, but sip address
-
-	for i := range data {
-		switch data[i] {
-		case ' ':
-			if p.begin == p.pointer {
-				return true, status.ErrBadRequest
-			}
-
-			p.request.URI = uf.B2S(p.requestLineBuff[p.begin:p.pointer])
-			data = data[i+1:]
-			p.state = eProto
-			p.begin = p.pointer
-			goto proto
-		case '%':
-			data = data[i+1:]
-			p.state = eUriDecode1Char
-			goto uriDecode1Char
-		case '?':
-			p.request.Path.String = uf.B2S(p.requestLineBuff[p.begin:p.pointer])
-			if len(p.request.Path.String) == 0 {
-				p.request.Path.String = "/"
-			}
-
-			p.begin = p.pointer
-			data = data[i+1:]
-			p.state = eQuery
-			goto query
-		case '\x00', '\n', '\r', '\t', '\b', '\a', '\v', '\f':
-			// request path MUST NOT include any non-printable characters
-			return true, status.ErrBadRequest
-		default:
-			if p.pointer >= len(p.requestLineBuff) {
+			if !p.requestLineArena.Append(data[i]) {
 				return true, status.ErrURITooLong
 			}
-
-			p.requestLineBuff[p.pointer] = data[i]
-			p.pointer++
 		}
 	}
 
 	return false, nil
 
-uriDecode1Char:
+uriScheme:
+	for i := range data {
+		if data[i] == ':' {
+			p.request.URI.Scheme = uf.B2S(data[:i])
+			data = data[i+1:]
+			p.state = eUriUser
+			goto uriUser
+		}
+	}
+
+	return false, nil
+
+uriUser:
+	for i := range data {
+		switch data[i] {
+		case '@':
+			p.request.URI.User = uf.B2S(p.requestLineArena.Finish())
+			data = data[i+1:]
+			p.state = eUriHost
+			goto uriHost
+		case ':':
+			p.request.URI.User = uf.B2S(p.requestLineArena.Finish())
+			data = data[i+1:]
+			p.state = eUriPassword
+			goto uriPassword
+		case '%':
+			data = data[i+1:]
+			p.state = eUriUserD1
+			goto uriUserD1
+		default:
+			if !p.requestLineArena.Append(data[i]) {
+				return true, status.ErrURITooLong
+			}
+		}
+	}
+
+	return false, nil
+
+uriUserD1:
 	if len(data) == 0 {
 		return false, nil
 	}
@@ -195,10 +194,10 @@ uriDecode1Char:
 
 	p.urlEncodedChar = unHex(data[0]) << 4
 	data = data[1:]
-	p.state = eUriDecode2Char
-	goto uriDecode2Char
+	p.state = eUriUserD2
+	goto uriUserD2
 
-uriDecode2Char:
+uriUserD2:
 	if len(data) == 0 {
 		return false, nil
 	}
@@ -212,40 +211,134 @@ uriDecode2Char:
 	}
 
 	data = data[1:]
-	p.state = eUri
-	goto uri
+	p.state = eUriUser
+	goto uriUser
 
-params:
-	// FIXME: we need to parse all the params in-place. Replace this with a better
-	//  state machine
+uriPassword:
+	for i := range data {
+		switch data[i] {
+		case '@':
+			p.request.URI.Password = uf.B2S(p.requestLineArena.Finish())
+			data = data[i+1:]
+			p.state = eUriHost
+			goto uriHost
+		case '%':
+			data = data[i+1:]
+			p.state = eUriPasswordD1
+			goto uriPasswordD1
+		default:
+			if !p.requestLineArena.Append(data[i]) {
+				return true, status.ErrURITooLong
+			}
+		}
+	}
 
+	return false, nil
+
+uriPasswordD1:
+	if len(data) == 0 {
+		return false, nil
+	}
+
+	if !isHex(data[0]) {
+		return true, status.ErrURIDecoding
+	}
+
+	p.urlEncodedChar = unHex(data[0]) << 4
+	data = data[1:]
+	p.state = eUriPasswordD2
+	goto uriPasswordD2
+
+uriPasswordD2:
+	if len(data) == 0 {
+		return false, nil
+	}
+
+	if !isHex(data[0]) {
+		return true, status.ErrURIDecoding
+	}
+
+	if !p.requestLineArena.Append(p.urlEncodedChar | unHex(data[0])) {
+		return true, status.ErrURITooLong
+	}
+
+	data = data[1:]
+	p.state = eUriPassword
+	goto uriPassword
+
+uriHost:
 	for i := range data {
 		switch data[i] {
 		case ' ':
-			p.request.Path.Query.Set(p.requestLineBuff[p.begin:p.pointer])
+			p.request.URI.Host = uf.B2S(data[:i])
 			data = data[i+1:]
 			p.state = eProto
 			goto proto
-		case '%':
+		case ':':
+			p.request.URI.Host = uf.B2S(data[:i])
 			data = data[i+1:]
-			p.state = eParamsDecode1Char
-			goto paramsDecode1Char
-		case '+':
-			if p.pointer >= len(p.requestLineBuff) {
-				return true, status.ErrURITooLong
+			p.state = eUriPort
+			goto uriPort
+		case ';':
+			p.request.URI.Host = uf.B2S(data[:i])
+			data = data[i+1:]
+			p.state = eParamsKey
+			goto paramsKey
+		}
+	}
+
+	return false, nil
+
+uriPort:
+	for i := range data {
+		switch data[i] {
+		case ' ':
+			p.request.URI.Port = p.counter
+			data = data[i+1:]
+			p.state = eProto
+			goto proto
+		case ';':
+			p.request.URI.Port = p.counter
+			data = data[i+1:]
+			p.state = eParamsKey
+			goto paramsKey
+		default:
+			if data[i] < '0' || data[i] > '9' {
+				return true, status.ErrBadRequest
 			}
 
+			p.counter = p.counter*10 + int(data[i]-'0')
+		}
+	}
+
+	return false, nil
+
+paramsKey:
+	for i := range data {
+		switch data[i] {
+		case '=':
+			p.tempParamKey = uf.B2S(p.requestLineArena.Finish())
+			data = data[i+1:]
+			p.state = eParamsValue
+			goto paramsValue
+		case '%':
+			data = data[i+1:]
+			p.state = eParamsKeyD1
+			goto paramsKeyD1
+		case '+':
 			if !p.requestLineArena.Append(' ') {
 				return true, status.ErrURITooLong
 			}
-		case '\x00', '\n', '\r', '\t', '\b', '\a', '\v', '\f':
-			return true, status.ErrBadRequest
+		default:
+			if !p.requestLineArena.Append(data[i]) {
+				return true, status.ErrURITooLong
+			}
 		}
 	}
 
 	return false, nil
 
-paramsDecode1Char:
+paramsKeyD1:
 	if len(data) == 0 {
 		return false, nil
 	}
@@ -256,10 +349,10 @@ paramsDecode1Char:
 
 	p.urlEncodedChar = unHex(data[0]) << 4
 	data = data[1:]
-	p.state = eParamsDecode2Char
-	goto paramsDecode2Char
+	p.state = eParamsKeyD2
+	goto paramsKeyD2
 
-paramsDecode2Char:
+paramsKeyD2:
 	if len(data) == 0 {
 		return false, nil
 	}
@@ -267,13 +360,71 @@ paramsDecode2Char:
 	if !isHex(data[0]) {
 		return true, status.ErrURIDecoding
 	}
+
 	if !p.requestLineArena.Append(p.urlEncodedChar | unHex(data[0])) {
 		return true, status.ErrURITooLong
 	}
 
 	data = data[1:]
-	p.state = eParams
-	goto params
+	p.state = eParamsKey
+	goto paramsKey
+
+paramsValue:
+	for i := range data {
+		switch data[i] {
+		case ';':
+			p.request.URI.Params.Add(p.tempParamKey, uf.B2S(p.requestLineArena.Finish()))
+			data = data[i+1:]
+			p.state = eParamsKey
+			goto paramsKey
+		case ' ':
+			p.request.URI.Params.Add(p.tempParamKey, uf.B2S(p.requestLineArena.Finish()))
+			data = data[i+1:]
+			p.state = eProto
+			goto proto
+		case '%':
+			data = data[i+1:]
+			p.state = eParamsValueD1
+			goto paramsValueD1
+		default:
+			if !p.requestLineArena.Append(data[i]) {
+				return true, status.ErrURITooLong
+			}
+		}
+	}
+
+	return false, nil
+
+paramsValueD1:
+	if len(data) == 0 {
+		return false, nil
+	}
+
+	if !isHex(data[0]) {
+		return true, status.ErrURIDecoding
+	}
+
+	p.urlEncodedChar = unHex(data[0]) << 4
+	data = data[1:]
+	p.state = eParamsValueD2
+	goto paramsValueD2
+
+paramsValueD2:
+	if len(data) == 0 {
+		return false, nil
+	}
+
+	if !isHex(data[0]) {
+		return true, status.ErrURIDecoding
+	}
+
+	if !p.requestLineArena.Append(p.urlEncodedChar | unHex(data[0])) {
+		return true, status.ErrURITooLong
+	}
+
+	data = data[1:]
+	p.state = eParamsValue
+	goto paramsValue
 
 proto:
 	if len(data) == 0 {
@@ -389,7 +540,7 @@ protoCRLF:
 		return false, nil
 	}
 
-	p.request.Proto = sip.Protocol(uf.B2S(p.requestLineBuff))
+	p.request.Proto = sip.Protocol(uf.B2S(p.requestLineArena.Finish()))
 
 	switch data[0] {
 	case '\r':
@@ -437,7 +588,7 @@ headerKey:
 			p.headerKey = uf.B2S(p.headerKeyArena.Finish())
 			data = data[i+1:]
 
-			if p.headerKey == "content-length" {
+			if strings.EqualFold(p.headerKey, "content-length") {
 				p.state = eContentLength
 				goto contentLength
 			}
