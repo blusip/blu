@@ -2,6 +2,7 @@ package parser
 
 import (
 	"fmt"
+
 	"github.com/gokiki/sip-server/internal/sip"
 	"github.com/gokiki/sip-server/internal/sip/status"
 	"github.com/gokiki/sip-server/settings"
@@ -117,7 +118,7 @@ method:
 			if !p.requestLineArena.Append(data[:i]...) {
 				// FIXME: sometimes this may be caused by misconfiguration. Error message
 				//  must be a bit more informative, but how?
-				return true, status.ErrMethodNotImplemented
+				return true, status.ErrNotImplemented
 			}
 			p.request.Method = uf.B2S(p.requestLineArena.Finish())
 			data = data[i+1:]
@@ -134,7 +135,7 @@ method:
 	}
 
 	if !p.requestLineArena.Append(data...) {
-		return true, status.ErrMethodNotImplemented
+		return true, status.ErrNotImplemented
 	}
 
 	return false, nil
