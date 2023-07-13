@@ -48,6 +48,7 @@ var (
 	ErrServerTimeout               = newErr(ServerTimeout, "server timeout")
 	ErrVersionNotSupported         = newErr(VersionNotSupported, "version not supported")
 	ErrMessageTooLarge             = newErr(MessageTooLarge, "message too large")
+	ErrMethodNotImplemented        = newErr(MethodNotImplemented, "method not implemented")
 	ErrURITooLong                  = newErr(URITooLong, "URI too long")
 	ErrURIDecoding                 = newErr(URIDecoding, "URI decoding failed")
 	ErrUnsupportedProtocol         = newErr(UnsupportedProtocol, "unsupported protocol")

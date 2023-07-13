@@ -71,6 +71,7 @@ const (
 	UnsupportedProtocol  Code = 522 // Custom 52x code
 	TooManyHeaders       Code = 523 // Custom 52x code
 	HeaderFieldsTooLarge Code = 524 // Custom 52x code
+	MethodNotImplemented Code = 525 // Custom 52x code
 
 	// Global Failures 6xx codes
 	BusyEverywhere       Code = 600 // RFC 3261 21.6.1
@@ -230,6 +231,9 @@ func Text(code Code) Status {
 
 	case UnsupportedProtocol:
 		return "Unsupported Protocol"
+
+	case MethodNotImplemented:
+		return "Method Not Implemented"
 
 	case BusyEverywhere:
 		return "Busy Everywhere"
@@ -408,6 +412,9 @@ func CodeStatus(code Code) string {
 
 	case HeaderFieldsTooLarge:
 		return "524 Header Fields Too Large\r\n"
+
+	case MethodNotImplemented:
+		return "525 Method Not Implemented\r\n"
 
 	case BusyEverywhere:
 		return "600 Busy Everywhere\r\n"
