@@ -5,8 +5,6 @@ type (
 	Status string
 )
 
-//go:generate stringer -type=Code
-
 // SIP status codes as registered RFC 3261
 // See: https://www.rfc-editor.org/rfc/rfc3261
 const (
@@ -19,7 +17,7 @@ const (
 
 	// Successful 2xx codes
 	OK       Code = 200 // RFC 3261 21.2.1
-	Accepted Code = 201 // Not show in RFC but recently used as de-facto standart code
+	Accepted Code = 201 // Not show in RFC but recently used as de-facto standard code
 
 	// Redirection 3xx codes
 	MultipleChoices    Code = 300 // RFC 3261 21.3.1
@@ -82,171 +80,116 @@ const (
 
 // Text returns a text for the SIP status code. It returns the empty
 // string if the code is unknown.
-
 func Text(code Code) Status {
 	switch code {
 	case Trying:
 		return "Trying"
-
 	case Ringing:
 		return "Ringing"
-
 	case CallIsBeingForwarded:
 		return "Call Is Being Forwarded"
-
 	case Queued:
 		return "Queued"
-
 	case OK:
 		return "OK"
-
 	case Accepted:
 		return "Accepted"
-
 	case MultipleChoices:
 		return "Multiple Choices"
-
 	case MovedPermanently:
 		return "Moved Permanently"
-
 	case MovedTemporarily:
 		return "Moved Temporarily"
-
 	case UseProxy:
 		return "Use Proxy"
-
 	case AlternativeService:
 		return "Alternative Service"
-
 	case BadRequest:
 		return "Bad Request"
-
 	case Unauthorized:
 		return "Unauthorized"
-
 	case PaymentRequired:
 		return "Payment Required"
-
 	case Forbidden:
 		return "Forbidden"
-
 	case MethodNotAllowed:
 		return "Method Not Allowed"
-
 	case NotAcceptable:
 		return "Not Acceptable"
-
 	case ProxyAuthenticationRequired:
 		return "Proxy Authentication Required"
-
 	case Gone:
 		return "Gone"
-
 	case RequestEntityTooLarge:
 		return "Request Entity Too Large"
-
 	case RequestURITooLong:
 		return "Request URI Too Long"
-
 	case UnsupportedMediaType:
 		return "Unsupported Media Type"
-
 	case UnsupportedURIScheme:
 		return "Unsupported URI Scheme"
-
 	case BadExtension:
 		return "Bad Extension"
-
 	case ExtensionRequired:
 		return "Extension Required"
-
 	case IntervalTooBrief:
 		return "Interval Too Brief"
-
 	case TemporarilyUnavailable:
 		return "Temporarily Unavailable"
-
 	case CallTransactionDoesNotExist:
 		return "Call/Transaction Does Not Exist"
-
 	case LoopDetected:
 		return "Loop Detected"
-
 	case TooManyHops:
 		return "Too Many Hops"
-
 	case AddressIncomplete:
 		return "Address Incomplete"
-
 	case Ambiguous:
 		return "Ambiguous"
-
 	case BusyHere:
 		return "Busy Here"
-
 	case RequestTerminated:
 		return "Request Terminated"
-
 	case NotAcceptableHere:
 		return "Not Acceptable Here"
-
 	case RequestPending:
 		return "Request Pending"
-
 	case Undecipherable:
 		return "Undecipherable"
-
 	case ServerInternalError:
 		return "Server Internal Error"
-
 	case NotImplemented:
 		return "Not Implemented"
-
 	case BadGateway:
 		return "Bad Gateway"
-
 	case ServiceUnavailable:
 		return "Service Unavailable"
-
 	case ServerTimeout:
 		return "Server Timeout"
-
 	case VersionNotSupported:
 		return "Version Not Supported"
-
 	case MessageTooLarge:
 		return "Message Too Large"
-
 	case URITooLong:
 		return "URI Too Long"
-
 	case URIDecoding:
 		return "URI Decoding Failed"
-
 	case TooManyHeaders:
 		return "Too Many Headers"
-
 	case HeaderFieldsTooLarge:
 		return "Header Fields Too Large"
-
 	case UnsupportedProtocol:
 		return "Unsupported Protocol"
-
 	case MethodNotImplemented:
 		return "Method Not Implemented"
-
 	case BusyEverywhere:
 		return "Busy Everywhere"
-
 	case Decline:
 		return "Decline"
-
 	case DoesNotExistAnywhere:
 		return "Does Not Exist Anywhere"
-
 	case GlobalNotAcceptable:
 		return "Not Acceptable"
-
 	default:
 		return "Unknown Status Code"
 	}
@@ -259,175 +202,118 @@ func CodeStatus(code Code) string {
 	switch code {
 	case Trying:
 		return "100 Trying\r\n"
-
 	case Ringing:
 		return "180 Ringing\r\n"
-
 	case CallIsBeingForwarded:
 		return "181 Call Is Being Forwarded\r\n"
-
 	case Queued:
 		return "182 Queued\r\n"
-
 	case SessionProgress:
 		return "183 Session Progress\r\n"
-
 	case OK:
 		return "200 OK\r\n"
-
 	case Accepted:
 		return "201 Accepted\r\n"
-
 	case MultipleChoices:
 		return "300 Multiple Choices\r\n"
-
 	case MovedPermanently:
 		return "301 Moved Permanently\r\n"
-
 	case MovedTemporarily:
 		return "302 Moved Temporarily\r\n"
-
 	case UseProxy:
 		return "305 Use Proxy\r\n"
-
 	case AlternativeService:
 		return "380 AlternativeS ervice\r\n"
-
 	case BadRequest:
 		return "400 Bad Request\r\n"
-
 	case Unauthorized:
 		return "401 Unauthorized\r\n"
-
 	case PaymentRequired:
 		return "402 Payment Required\r\n"
-
 	case Forbidden:
 		return "403 Forbidden\r\n"
-
 	case NotFound:
 		return "404 Not Found\r\n"
-
 	case NotAcceptable:
 		return "405 Not Acceptable\r\n"
-
 	case MethodNotAllowed:
 		return "406 Method Not Allowed\r\n"
-
 	case ProxyAuthenticationRequired:
 		return "407 Proxy Authentication Required\r\n"
-
 	case RequestTimeout:
 		return "408 Request Timeout\r\n"
-
 	case Gone:
 		return "410 Gone\r\n"
-
 	case RequestEntityTooLarge:
 		return "413 Request Entity Too Large\r\n"
-
 	case RequestURITooLong:
 		return "414 Request URI Too Long\r\n"
-
 	case UnsupportedMediaType:
 		return "415 Unsupported Media Type\r\n"
-
 	case UnsupportedURIScheme:
 		return "416 Unsupported URI Scheme\r\n"
-
 	case BadExtension:
 		return "420 Bad Extension\r\n"
-
 	case ExtensionRequired:
 		return "421 Extension Required\r\n"
-
 	case IntervalTooBrief:
 		return "423 Interval Too Brief\r\n"
-
 	case TemporarilyUnavailable:
 		return "480 Temporarily Unavailable\r\n"
-
 	case CallTransactionDoesNotExist:
 		return "481 Call/Transaction Does Not Exist\r\n"
-
 	case LoopDetected:
 		return "482 Loop Detected\r\n"
-
 	case TooManyHops:
 		return "483 Too Many Hops\r\n"
-
 	case AddressIncomplete:
 		return "484 Address Incomplete\r\n"
-
 	case Ambiguous:
 		return "485 Ambiguous\r\n"
-
 	case BusyHere:
 		return "486 Busy Here\r\n"
-
 	case RequestTerminated:
 		return "487 Request Terminated\r\n"
-
 	case NotAcceptableHere:
 		return "488 Not Acceptable Here\r\n"
-
 	case RequestPending:
 		return "491 Request Pending\r\n"
-
 	case Undecipherable:
 		return "493 Undecipherable\r\n"
-
 	case ServerInternalError:
 		return "500 Server Internal Error\r\n"
-
 	case NotImplemented:
 		return "501 Not Implemented\r\n"
-
 	case BadGateway:
 		return "502 Bad Gateway\r\n"
-
 	case ServiceUnavailable:
 		return "503 Service Unavailable\r\n"
-
 	case ServerTimeout:
 		return "504 Server Timeout\r\n"
-
 	case VersionNotSupported:
 		return "505 Version Not Supported\r\n"
-
 	case MessageTooLarge:
 		return "513 Message Too Large\r\n"
-
 	case URITooLong:
 		return "520 URI Too Long\r\n"
-
 	case URIDecoding:
 		return "521 URI Decoding Failed\r\n"
-
 	case UnsupportedProtocol:
 		return "522 Unsupported Protocol\r\n"
-
 	case TooManyHeaders:
 		return "523 Too Many Headers\r\n"
-
 	case HeaderFieldsTooLarge:
 		return "524 Header Fields Too Large\r\n"
-
 	case MethodNotImplemented:
 		return "525 Method Not Implemented\r\n"
-
 	case BusyEverywhere:
 		return "600 Busy Everywhere\r\n"
-
 	case Decline:
 		return "603 Decline\r\n"
-
 	case DoesNotExistAnywhere:
 		return "604 Does Not Exist Anywhere\r\n"
-
 	case GlobalNotAcceptable:
 		return "606 Not Acceptable\r\n"
-
 	default:
 		return ""
 	}
