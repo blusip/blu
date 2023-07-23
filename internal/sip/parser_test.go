@@ -1,7 +1,6 @@
-package parser
+package sip
 
 import (
-	"github.com/gokiki/sip-server/internal/sip"
 	"github.com/gokiki/sip-server/settings"
 	"github.com/indigo-web/utils/arena"
 	"github.com/indigo-web/utils/pool"
@@ -10,7 +9,7 @@ import (
 	"testing"
 )
 
-func newParser(request *sip.Request) *Parser {
+func newParser(request *Request) *Parser {
 	keyArena := *arena.NewArena[byte](0, 65535)
 	valArena := *arena.NewArena[byte](0, 65535)
 	requestLineArena := *arena.NewArena[byte](0, 65535)
@@ -34,7 +33,7 @@ func TestParser(t *testing.T) {
 			"Content-Length: 13\r\n\r\n" +
 			"some SDP here"
 
-		request := sip.NewRequest()
+		request := NewRequest()
 		p := newParser(request)
 		done, err := p.Parse([]byte(data))
 		require.NoError(t, err)

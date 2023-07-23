@@ -1,4 +1,4 @@
-package status
+package sip
 
 type Error struct {
 	Message string

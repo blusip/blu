@@ -1,4 +1,4 @@
-package parser
+package sip
 
 func isHex(char byte) bool {
 	switch {
