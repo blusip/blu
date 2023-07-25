@@ -1,12 +1,13 @@
 package sip
 
 import (
+	"testing"
+
 	"github.com/gokiki/sip-server/settings"
 	"github.com/indigo-web/utils/arena"
 	"github.com/indigo-web/utils/pool"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func newParser(request *Request) *Parser {

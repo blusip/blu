@@ -2,11 +2,11 @@ package sdp
 
 import (
 	"bytes"
+
 	"github.com/indigo-web/utils/uf"
 )
 
-type Parser struct {
-}
+type Parser struct{}
 
 func NewParser() Parser {
 	return Parser{}
