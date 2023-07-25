@@ -37,7 +37,10 @@ func (Parser) Parse(data []byte) (desc Description, err error) {
 		case 'v':
 			session.Protocol = value
 		case 'o':
-			session.Originator = value
+			session.Originator, err = session.Originator.Parse(value)
+			if err != nil {
+				return desc, err
+			}
 		case 's':
 			session.Name = value
 		case 'i':

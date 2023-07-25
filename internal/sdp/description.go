@@ -7,7 +7,7 @@ type Description struct {
 
 type Session struct {
 	Protocol       string   // compulsory
-	Originator     string   // compulsory
+	Originator     Origin   // compulsory
 	Name           string   // compulsory
 	Info           string   // optional
 	URI            string   // optional
