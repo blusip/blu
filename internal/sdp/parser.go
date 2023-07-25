@@ -52,7 +52,10 @@ func (Parser) Parse(data []byte) (desc Description, err error) {
 		case 'p':
 			session.Phone = value
 		case 'c':
-			session.ConnectionData = value
+			session.ConnectionData, err = session.ConnectionData.Parse(value)
+			if err != nil {
+				return desc, err
+			}
 		case 'b':
 			session.BandwidthInfo = append(session.BandwidthInfo, value)
 		case 'z':

@@ -6,15 +6,15 @@ type Description struct {
 }
 
 type Session struct {
-	Protocol       string   // compulsory
-	Originator     Origin   // compulsory
-	Name           string   // compulsory
-	Info           string   // optional
-	URI            string   // optional
-	Email          string   // optional
-	Phone          string   // optional
-	ConnectionData string   // optional
-	BandwidthInfo  []string // optional
+	Protocol       string         // compulsory
+	Originator     Origin         // compulsory
+	Name           string         // compulsory
+	Info           string         // optional
+	URI            string         // optional
+	Email          string         // optional
+	Phone          string         // optional
+	ConnectionData ConnectionData // optional
+	BandwidthInfo  []string       // optional
 
 	// TODO: add time descriptions here
 

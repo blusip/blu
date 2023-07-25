@@ -33,7 +33,9 @@ func TestParser(t *testing.T) {
 		require.Equal(t, "A Seminar on the session description protocol", desc.Session.Info)
 		require.Equal(t, "http://www.example.com/seminars/sdp.pdf", desc.Session.URI)
 		require.Equal(t, "j.doe@example.com (Jane Doe)", desc.Session.Email)
-		require.Equal(t, "IN IP4 224.2.17.12/127", desc.Session.ConnectionData)
+		require.Equal(t, IN, desc.Session.ConnectionData.NetType)
+		require.Equal(t, IP4, desc.Session.ConnectionData.AddrType)
+		require.Equal(t, "224.2.17.12/127", desc.Session.ConnectionData.Address)
 		require.Equal(t, []string{"recvonly"}, desc.Session.Attributes)
 		require.Equal(t, 2, len(desc.Media), "must be exactly 2 media blocks")
 		media := desc.Media[0]
