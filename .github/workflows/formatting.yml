@@ -1,0 +1,32 @@
+name: Formatting
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    
+    - uses: actions/checkout@v3
+      with:
+        ref: ${{ github.head_ref }}
+    
+    - name: Run gofumpt
+      run: |
+        go install mvdan.cc/gofumpt@latest
+        export PATH=${PATH}:`go env GOPATH`/bin
+        gofumpt -l -extra -w .
+      
+    - name: Push changes
+      if: steps.git-check.outputs.modified == 'true'
+      run: |
+          git config --global user.name 'Blu formatting runner'
+          git config --global user.email 'fakefloordiv@gmail.com'
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          git commit -am "Automated changes"
+          git push
