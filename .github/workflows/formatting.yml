@@ -17,7 +17,10 @@ jobs:
         ref: ${{ github.head_ref }}
     
     - name: Run gofumpt
-      run: go install mvdan.cc/gofumpt@latest && gofumpt -l -extra -w .
+      run: |
+        go install mvdan.cc/gofumpt@latest
+        export PATH=${PATH}:`go env GOPATH`/bin
+        gofumpt -l -extra -w .
       
     - name: Push changes
       if: steps.git-check.outputs.modified == 'true'
