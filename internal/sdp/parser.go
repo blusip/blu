@@ -59,7 +59,12 @@ func (Parser) Parse(data []byte) (desc Description, err error) {
 
 			session.ConnectionInfo = append(session.ConnectionInfo, connInfo)
 		case 'b':
-			session.BandwidthInfo = append(session.BandwidthInfo, value)
+			bwInfo, err := Bandwidth{}.Parse(value)
+			if err != nil {
+				return desc, err
+			}
+
+			session.BandwidthInfo = append(session.BandwidthInfo, bwInfo)
 		case 'z':
 			session.TimeZoneAdjustments = append(session.TimeZoneAdjustments, value)
 		case 'k':

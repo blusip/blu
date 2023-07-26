@@ -14,7 +14,7 @@ type Session struct {
 	Email          string           // optional
 	Phone          string           // optional
 	ConnectionInfo []ConnectionInfo // optional
-	BandwidthInfo  []string         // optional
+	BandwidthInfo  []Bandwidth      // optional
 
 	// TODO: add time descriptions here
 

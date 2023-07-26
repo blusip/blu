@@ -15,6 +15,7 @@ func TestParser(t *testing.T) {
 			"u=http://www.example.com/seminars/sdp.pdf\r\n" +
 			"e=j.doe@example.com (Jane Doe)\r\n" +
 			"c=IN IP4 224.2.17.12/127\r\n" +
+			"b=CT:128\r\n" +
 			//"t=2873397496 2873404696\r\n" +
 			"a=recvonly\r\n" +
 			"m=audio 49170 RTP/AVP 0\r\n" +
@@ -40,6 +41,9 @@ func TestParser(t *testing.T) {
 		require.Equal(t, 127, desc.Session.ConnectionInfo[0].TTL)
 		require.Equal(t, 0, desc.Session.ConnectionInfo[0].AddrRange)
 		require.Equal(t, "224.2.17.12", desc.Session.ConnectionInfo[0].Address)
+		require.Equal(t, 1, len(desc.Session.BandwidthInfo), "wanted single bandwidth info")
+		require.Equal(t, CT, desc.Session.BandwidthInfo[0].Type)
+		require.Equal(t, 128, desc.Session.BandwidthInfo[0].Value)
 		require.Equal(t, []string{"recvonly"}, desc.Session.Attributes)
 		require.Equal(t, 2, len(desc.Media), "must be exactly 2 media blocks")
 		media := desc.Media[0]

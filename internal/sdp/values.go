@@ -88,6 +88,44 @@ func (o Origin) Parse(value string) (Origin, error) {
 	return o, nil
 }
 
+type BandwidthType string
+
+const (
+	UnknownBWType BandwidthType = ""
+	CT            BandwidthType = "CT"
+	AS            BandwidthType = "AS"
+)
+
+type Bandwidth struct {
+	Type  BandwidthType
+	Value int
+}
+
+func (b Bandwidth) Parse(value string) (bandwidth Bandwidth, err error) {
+	colon := strings.IndexByte(value, ':')
+	if colon == -1 {
+		return b, ErrBadSyntax
+	}
+
+	btype, bvalue := value[:colon], value[colon+1:]
+	switch btype {
+	case "CT":
+		b.Type = CT
+	case "AS":
+		b.Type = AS
+	default:
+		b.Type = UnknownBWType
+		return b, nil
+	}
+
+	b.Value, err = strconv.Atoi(bvalue)
+	if err != nil {
+		return b, err
+	}
+
+	return b, nil
+}
+
 type ConnectionInfo struct {
 	NetType   NetType
 	AddrType  AddrType
