@@ -11,6 +11,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+    
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ github.event.pull_request.head }}
         
     - name: Run gofmt
       run: go fmt ./...
@@ -25,6 +30,5 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-          git checkout ${{ github.event.pull_request.head }}
           git commit -am "Automated changes"
           git push
