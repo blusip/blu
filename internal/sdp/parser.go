@@ -52,10 +52,12 @@ func (Parser) Parse(data []byte) (desc Description, err error) {
 		case 'p':
 			session.Phone = value
 		case 'c':
-			session.ConnectionData, err = session.ConnectionData.Parse(value)
+			connInfo, err := ConnectionInfo{}.Parse(value)
 			if err != nil {
 				return desc, err
 			}
+
+			session.ConnectionInfo = append(session.ConnectionInfo, connInfo)
 		case 'b':
 			session.BandwidthInfo = append(session.BandwidthInfo, value)
 		case 'z':
@@ -102,7 +104,12 @@ func (Parser) Parse(data []byte) (desc Description, err error) {
 		case 'i':
 			media.Title = value
 		case 'c':
-			media.ConnectionInfo = value
+			connInfo, err := ConnectionInfo{}.Parse(value)
+			if err != nil {
+				return desc, err
+			}
+
+			media.ConnectionInfo = append(media.ConnectionInfo, connInfo)
 		case 'b':
 			media.BandwidthInfo = append(media.BandwidthInfo, value)
 		case 'k':

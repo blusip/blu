@@ -6,15 +6,15 @@ type Description struct {
 }
 
 type Session struct {
-	Protocol       string         // compulsory
-	Originator     Origin         // compulsory
-	Name           string         // compulsory
-	Info           string         // optional
-	URI            string         // optional
-	Email          string         // optional
-	Phone          string         // optional
-	ConnectionData ConnectionData // optional
-	BandwidthInfo  []string       // optional
+	Protocol       string           // compulsory
+	Originator     Origin           // compulsory
+	Name           string           // compulsory
+	Info           string           // optional
+	URI            string           // optional
+	Email          string           // optional
+	Phone          string           // optional
+	ConnectionInfo []ConnectionInfo // optional
+	BandwidthInfo  []string         // optional
 
 	// TODO: add time descriptions here
 
@@ -24,10 +24,10 @@ type Session struct {
 }
 
 type Media struct {
-	Name           string   // compulsory
-	Title          string   // optional
-	ConnectionInfo string   // optional if included in session-level
-	BandwidthInfo  []string // optional
-	EncryptionKey  string   // optional
-	Attributes     []string // optional
+	Name           string           // compulsory
+	Title          string           // optional
+	ConnectionInfo []ConnectionInfo // optional if included in session-level
+	BandwidthInfo  []string         // optional
+	EncryptionKey  string           // optional
+	Attributes     []string         // optional
 }

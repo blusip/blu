@@ -34,9 +34,12 @@ func TestParser(t *testing.T) {
 		require.Equal(t, "A Seminar on the session description protocol", desc.Session.Info)
 		require.Equal(t, "http://www.example.com/seminars/sdp.pdf", desc.Session.URI)
 		require.Equal(t, "j.doe@example.com (Jane Doe)", desc.Session.Email)
-		require.Equal(t, IN, desc.Session.ConnectionData.NetType)
-		require.Equal(t, IP4, desc.Session.ConnectionData.AddrType)
-		require.Equal(t, "224.2.17.12/127", desc.Session.ConnectionData.Address)
+		require.Equal(t, 1, len(desc.Session.ConnectionInfo), "wanted single connection info")
+		require.Equal(t, IN, desc.Session.ConnectionInfo[0].NetType)
+		require.Equal(t, IP4, desc.Session.ConnectionInfo[0].AddrType)
+		require.Equal(t, 127, desc.Session.ConnectionInfo[0].TTL)
+		require.Equal(t, 0, desc.Session.ConnectionInfo[0].AddrRange)
+		require.Equal(t, "224.2.17.12", desc.Session.ConnectionInfo[0].Address)
 		require.Equal(t, []string{"recvonly"}, desc.Session.Attributes)
 		require.Equal(t, 2, len(desc.Media), "must be exactly 2 media blocks")
 		media := desc.Media[0]
@@ -44,5 +47,36 @@ func TestParser(t *testing.T) {
 		media = desc.Media[1]
 		require.Equal(t, "video 51372 RTP/AVP 99", media.Name)
 		require.Equal(t, []string{"rtpmap:99 h263-1998/90000"}, media.Attributes)
+	})
+}
+
+func TestParseAddr(t *testing.T) {
+	baseAddr := "127.0.0.1"
+
+	t.Run("Just address", func(t *testing.T) {
+		sample := baseAddr
+		addr, ttl, addrrange, err := parseAddress(sample)
+		require.NoError(t, err)
+		require.Equal(t, -1, ttl)
+		require.Zero(t, addrrange)
+		require.Equal(t, sample, addr)
+	})
+
+	t.Run("Address and TTL", func(t *testing.T) {
+		sample := baseAddr + "/127"
+		addr, ttl, addrrange, err := parseAddress(sample)
+		require.NoError(t, err)
+		require.Equal(t, 127, ttl)
+		require.Zero(t, addrrange)
+		require.Equal(t, baseAddr, addr)
+	})
+
+	t.Run("Address, TTL and range", func(t *testing.T) {
+		sample := baseAddr + "/127/4"
+		addr, ttl, addrrange, err := parseAddress(sample)
+		require.NoError(t, err)
+		require.Equal(t, 127, ttl)
+		require.Equal(t, 4, addrrange)
+		require.Equal(t, baseAddr, addr)
 	})
 }
