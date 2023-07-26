@@ -18,9 +18,9 @@ type Session struct {
 
 	// TODO: add time descriptions here
 
-	TimeZoneAdjustments []string // optional
-	EncryptionKey       string   // optional
-	Attributes          []string // optional
+	TimeZoneAdjustments []string      // optional
+	EncryptionKey       EncryptionKey // optional
+	Attributes          []string      // optional
 }
 
 type Media struct {

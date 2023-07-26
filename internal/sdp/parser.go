@@ -68,7 +68,10 @@ func (Parser) Parse(data []byte) (desc Description, err error) {
 		case 'z':
 			session.TimeZoneAdjustments = append(session.TimeZoneAdjustments, value)
 		case 'k':
-			session.EncryptionKey = value
+			session.EncryptionKey, err = EncryptionKey{}.Parse(value)
+			if err != nil {
+				return desc, err
+			}
 		case 'a':
 			session.Attributes = append(session.Attributes, value)
 		default:

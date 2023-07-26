@@ -126,6 +126,45 @@ func (b Bandwidth) Parse(value string) (bandwidth Bandwidth, err error) {
 	return b, nil
 }
 
+type EncryptionMethod string
+
+const (
+	Clear  EncryptionMethod = "clear"
+	Base64 EncryptionMethod = "base64"
+	Prompt EncryptionMethod = "prompt"
+)
+
+type EncryptionKey struct {
+	Method EncryptionMethod
+	Key    string
+}
+
+func (e EncryptionKey) Parse(value string) (EncryptionKey, error) {
+	var method, key string
+
+	switch colon := strings.IndexByte(value, ':'); colon {
+	case -1:
+		method = value
+	default:
+		method, key = value[:colon], value[colon+1:]
+	}
+
+	switch method {
+	case "clear":
+		e.Method = Clear
+	case "base64":
+		e.Method = Base64
+	case "prompt":
+		e.Method = Prompt
+	default:
+		return e, ErrUnknownEncryptionMethod
+	}
+
+	e.Key = key
+
+	return e, nil
+}
+
 type ConnectionInfo struct {
 	NetType   NetType
 	AddrType  AddrType
