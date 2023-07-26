@@ -15,7 +15,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
       with:
-        ref: ${{ github.event.pull_request.head }}
+        ref: ${{ github.event.pull_request.head.sha }}
         
     - name: Run gofmt
       run: go fmt ./...
