@@ -73,7 +73,7 @@ func (Parser) Parse(data []byte) (desc Description, err error) {
 				return desc, err
 			}
 		case 'a':
-			session.Attributes = append(session.Attributes, value)
+			session.Attributes = append(session.Attributes, Attribute{}.Parse(value))
 		default:
 			return desc, ErrUnrecognizedKey
 		}

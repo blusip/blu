@@ -20,7 +20,7 @@ type Session struct {
 
 	TimeZoneAdjustments []string      // optional
 	EncryptionKey       EncryptionKey // optional
-	Attributes          []string      // optional
+	Attributes          []Attribute   // optional
 }
 
 type Media struct {

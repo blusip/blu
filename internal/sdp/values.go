@@ -165,6 +165,23 @@ func (e EncryptionKey) Parse(value string) (EncryptionKey, error) {
 	return e, nil
 }
 
+type Attribute struct {
+	Key   string
+	Value string
+}
+
+func (a Attribute) Parse(value string) Attribute {
+	if colon := strings.IndexByte(value, ':'); colon != -1 {
+		a.Key, a.Value = value[:colon], value[colon+1:]
+
+		return a
+	}
+
+	a.Key = value
+
+	return a
+}
+
 type ConnectionInfo struct {
 	NetType   NetType
 	AddrType  AddrType
