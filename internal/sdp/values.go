@@ -131,7 +131,7 @@ func (c ConnectionInfo) Parse(value string) (info ConnectionInfo, err error) {
 		value = value[:sp]
 	}
 
-	c.Address, c.TTL, c.AddrRange, err = parseAddress(value)
+	c.Address, c.TTL, c.AddrRange, err = parseAddress(value, c.AddrType)
 
 	return c, err
 }
@@ -148,7 +148,7 @@ func (c ConnectionInfo) Parse(value string) (info ConnectionInfo, err error) {
 // as TTL there is optional, while address range isn't. But in case there is just one element
 // after the address separated with a slash, then it isn't an addr-range, but TTL. In case you want
 // to specify the addr-range, then you MUST also specify TTL.
-func parseAddress(addr string) (outAddr string, ttl, addrrange int, err error) {
+func parseAddress(addr string, typ AddrType) (outAddr string, ttl, addrrange int, err error) {
 	slash := strings.IndexByte(addr, '/')
 	if slash == -1 {
 		return addr, -1, 0, nil
@@ -159,7 +159,7 @@ func parseAddress(addr string) (outAddr string, ttl, addrrange int, err error) {
 	if slash = strings.IndexByte(rawTTL, '/'); slash != -1 {
 		addrrange, err = strconv.Atoi(rawTTL[slash+1:])
 		if err != nil {
-			return "", 0, 0, err
+			return "", -1, 0, err
 		}
 
 		rawTTL = rawTTL[:slash]
@@ -167,7 +167,16 @@ func parseAddress(addr string) (outAddr string, ttl, addrrange int, err error) {
 
 	ttl, err = strconv.Atoi(rawTTL)
 	if err != nil {
-		return "", 0, 0, err
+		return "", -1, 0, err
+	}
+
+	if typ == IP6 {
+		// Don't forget! IP6 doesn't have TTL.
+		// Also, if we're at this point, so TTL is already presented. Then
+		// just swap ttl with addrrange and set ttl to 0,
+		// (!) ignoring possible error: both ttl and addrrange are presented
+		addrrange = ttl
+		ttl = -1
 	}
 
 	return addr, ttl, addrrange, nil

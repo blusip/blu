@@ -53,30 +53,39 @@ func TestParser(t *testing.T) {
 func TestParseAddr(t *testing.T) {
 	baseAddr := "127.0.0.1"
 
-	t.Run("Just address", func(t *testing.T) {
+	t.Run("IP4 address", func(t *testing.T) {
 		sample := baseAddr
-		addr, ttl, addrrange, err := parseAddress(sample)
+		addr, ttl, addrrange, err := parseAddress(sample, IP4)
 		require.NoError(t, err)
 		require.Equal(t, -1, ttl)
 		require.Zero(t, addrrange)
 		require.Equal(t, sample, addr)
 	})
 
-	t.Run("Address and TTL", func(t *testing.T) {
+	t.Run("IP4 address and TTL", func(t *testing.T) {
 		sample := baseAddr + "/127"
-		addr, ttl, addrrange, err := parseAddress(sample)
+		addr, ttl, addrrange, err := parseAddress(sample, IP4)
 		require.NoError(t, err)
 		require.Equal(t, 127, ttl)
 		require.Zero(t, addrrange)
 		require.Equal(t, baseAddr, addr)
 	})
 
-	t.Run("Address, TTL and range", func(t *testing.T) {
+	t.Run("IP4 address, TTL and range", func(t *testing.T) {
 		sample := baseAddr + "/127/4"
-		addr, ttl, addrrange, err := parseAddress(sample)
+		addr, ttl, addrrange, err := parseAddress(sample, IP4)
 		require.NoError(t, err)
 		require.Equal(t, 127, ttl)
 		require.Equal(t, 4, addrrange)
+		require.Equal(t, baseAddr, addr)
+	})
+
+	t.Run("IP6 address and TTL", func(t *testing.T) {
+		sample := baseAddr + "/127"
+		addr, ttl, addrrange, err := parseAddress(sample, IP6)
+		require.NoError(t, err)
+		require.Equal(t, -1, ttl)
+		require.Equal(t, 127, addrrange)
 		require.Equal(t, baseAddr, addr)
 	})
 }
