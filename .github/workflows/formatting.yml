@@ -26,7 +26,6 @@ jobs:
         gofumpt -l -extra -w .
       
     - name: Push changes
-      if: steps.git-check.outputs.modified == 'true'
       run: |
           git config --global user.name 'Blu formatting runner'
           git config --global user.email 'fakefloordiv@gmail.com'
