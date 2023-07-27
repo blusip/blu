@@ -1,4 +1,4 @@
-module github.com/gokiki/sip-server
+module github.com/blusip/blu
 
 go 1.19
 

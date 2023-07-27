@@ -1,4 +1,3 @@
 package sip
 
-type Response struct {
-}
+type Response struct{}
