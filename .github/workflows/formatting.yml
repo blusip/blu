@@ -17,6 +17,11 @@ jobs:
       with:
         ref: ${{ github.event.pull_request.head.sha }}
         
+    - name: Checkout PR
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: gh pr checkout ${{ github.event.pull_request.number }}
+        
     - name: Run gofmt
       run: go fmt ./...
     
@@ -25,15 +30,10 @@ jobs:
         go install mvdan.cc/gofumpt@latest
         export PATH=${PATH}:`go env GOPATH`/bin
         gofumpt -l -extra -w .
-      
+        
     - name: Push changes
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-          git config user.name github-actions[bot]
-          git config user.email github-actions[bot]@users.noreply.github.com
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-          
-          git checkout ${{ github.event.pull_request.head.ref }}
-          git commit -am "Automated changes"
-          git push
+      run: git push
+      
+
